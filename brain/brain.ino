@@ -34,10 +34,9 @@ void loop()
 	updateMotor();
 }
 
-int sounds;
 void updateMotor()
 {
-	analogRead(SOUND_IN); // returns int (0 to 1023)
+	int sounds = analogRead(SOUND_IN); // returns int (0 to 1023)
 	Serial.println(sounds);
 
 	bool forward_pressed = (digitalRead(XBACK) == LOW);	
