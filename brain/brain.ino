@@ -17,15 +17,14 @@ void setup() {
 	pinMode( MOTOR_REV, OUTPUT );
 
 	pinMode( SOUND_IN, INPUT );
-	pinMode( TILT, INPUT );
-	pinMode( UPSIDE_DN, INPUT );
-	pinMode( GEAR_ROT, INPUT );
-	pinMode( TUMMY, INPUT );
+	pinMode( TILT, INPUT_PULLUP );
+	pinMode( UPSIDE_DN, INPUT_PULLUP );
+	pinMode( GEAR_ROT, INPUT_PULLUP );
+	pinMode( TUMMY, INPUT_PULLUP );
 
-	pinMode( XCAM_HOME, INPUT );
-	digitalWrite( XCAM_HOME, HIGH ); // pullup
-	pinMode( XBACK, INPUT );
-	digitalWrite( XBACK, HIGH ); // pullup
+	pinMode( XCAM_HOME, INPUT_PULLUP );
+	//digitalWrite( XCAM_HOME, HIGH ); // pullup
+	pinMode( XBACK, INPUT_PULLUP );
 
 }
 
@@ -37,20 +36,18 @@ void loop()
 void updateMotor()
 {
 	int sounds = analogRead(SOUND_IN); // returns int (0 to 1023)
-	Serial.println(sounds);
+	Serial.println(sounds - 960);
 
 	bool forward_pressed = (digitalRead(XBACK) == LOW);	
-	bool reverse_pressed = (digitalRead(TUMMY) == HIGH);
-
-	// stop the motor for now
-	digitalWrite(MOTOR_FOR, LOW);
-	digitalWrite(MOTOR_REV, LOW);
-		
+	bool reverse_pressed = (digitalRead(TUMMY) == LOW);
 
 	// Don't do anything if both are pressed
-	if (forward_pressed && reverse_pressed) return;
+	if (!forward_pressed && !reverse_pressed) {
+		digitalWrite(MOTOR_REV, LOW);
+		digitalWrite(MOTOR_FOR, LOW);
+	
+	}
 
-/*
 	if (forward_pressed) {
 		digitalWrite(MOTOR_REV, LOW);
 		digitalWrite(MOTOR_FOR, HIGH);
@@ -60,5 +57,4 @@ void updateMotor()
 		digitalWrite(MOTOR_REV, HIGH);
 		digitalWrite(MOTOR_FOR, LOW);
 	}
-*/
 }
