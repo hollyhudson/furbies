@@ -31,6 +31,8 @@ void setup() {
 void loop() 
 {
 	updateMotor();
+	
+	
 }
 
 void updateMotor()
@@ -51,10 +53,16 @@ void updateMotor()
 	if (forward_pressed) {
 		digitalWrite(MOTOR_REV, LOW);
 		digitalWrite(MOTOR_FOR, HIGH);
+		int position = digitalRead(GEAR_ROT);
+		Serial.print(position);
+		Serial.println("  forward");
 	}
 
 	if (reverse_pressed) {
 		digitalWrite(MOTOR_REV, HIGH);
 		digitalWrite(MOTOR_FOR, LOW);
+		int position = digitalRead(GEAR_ROT);
+		Serial.print(position);
+		Serial.println("  reverse");
 	}
 }
