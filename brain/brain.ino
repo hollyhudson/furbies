@@ -5,8 +5,8 @@ Furby Brain
 #define SOUND_IN 21
 #define TILT 20
 #define UPSIDE_DN 19
-#define MOTOR_FOR 4 // PWM
-#define MOTOR_REV 5 // PWM
+#define MOTOR_FOR 18 // 4 // PWM
+#define MOTOR_REV 17 // 5 // PWM
 #define XCAM_HOME 0
 #define GEAR_ROT 1
 #define XBACK 2
@@ -14,8 +14,104 @@ Furby Brain
 
 int desired_position = 0;
 int position;
+long last_millis;
 
+// EARS
+	int ears[] = {
+		0,
+		50,
+		22,
+		12,
+		84,
+		90,
+		45,	
+	};
+	const int num_ears = sizeof(ears) / sizeof(*ears);
+void ears_function()
+{
+	for (int i = 0; i < num_ears; i++){
+		long start_time = millis();
+		desired_position = ears[i];
 
+		while (millis() - start_time < 150)
+		{
+			updateMotor();
+			if (position == desired_position) break;
+		}
+	}
+}
+
+// EYES
+	int eyes[] = {
+		120,
+		15,
+		22,
+		3,
+	};
+	const int num_eyes = sizeof(eyes) / sizeof(*eyes);
+void eyes_function()
+{
+	for (int i = 0; i < num_eyes; i++){
+		long start_time = millis();
+		desired_position = eyes[i];
+
+		while (millis() - start_time < 150)
+		{
+			updateMotor();
+			if (position == desired_position) break;
+		}
+	}
+}
+
+// NOSE
+	int nose[] = {
+		36,
+		39,
+		20,
+		2,
+		150,
+		132,
+		93,
+		68,
+		77,
+	};
+	const int num_nose = sizeof(nose) / sizeof(*nose);
+void nose_function()
+{
+	for (int i = 0; i < num_nose; i++){
+		long start_time = millis();
+		desired_position = nose[i];
+
+		while (millis() - start_time < 150)
+		{
+			updateMotor();
+			if (position == desired_position) break;
+		}
+	}
+}
+
+// TOES 
+	int toes[] = {
+		72,
+		43,
+		80,
+		61,
+	};
+	const int num_toes = sizeof(toes) / sizeof(*toes);
+void toes_function()
+{
+	Serial.println("toes");
+	for (int i = 0; i < num_toes; i++){
+		long start_time = millis();
+		desired_position = toes[i];
+
+		while (millis() - start_time < 150)
+		{
+			updateMotor();
+			if (position == desired_position) break;
+		}
+	}
+}
 void motor(int dir)
 {
 	if(dir == 0)
@@ -26,10 +122,12 @@ void motor(int dir)
 	if (dir > 0)
 	{
 		digitalWrite(MOTOR_REV, LOW);
-		analogWrite(MOTOR_FOR, dir);
+		digitalWrite(MOTOR_FOR, HIGH);
+		//analogWrite(MOTOR_FOR, dir);
 	} else {
 		digitalWrite(MOTOR_FOR, LOW);
-		analogWrite(MOTOR_REV, dir);
+		digitalWrite(MOTOR_REV, HIGH);
+		//analogWrite(MOTOR_REV, dir);
 	}
 }
 
@@ -47,8 +145,8 @@ void setup() {
 	pinMode( XBACK, INPUT_PULLUP );
 
 	// find the home position
-	Serial.println("Finding home");
-	const int start_time = millis();
+	Serial.println("Finding home in setup");
+	const long start_time = millis();
 
 	motor(+150);
 
@@ -94,34 +192,41 @@ int positions[] = {
 	50,
 };
 
-const int num_positions = sizeof(positions) / sizeof(*positions);
-int last_millis;
+
 
 void loop() 
 {
-/*
-	bool forward_pressed = (digitalRead(XBACK) == LOW);	
-	bool reverse_pressed = (digitalRead(TUMMY) == LOW);	
+	// The fastest it can run is 80, faster is just small twitches
 
-	if (forward_pressed)
-	{
-		desired_position = 10;
-	} else
-	if (reverse_pressed)
-	{
-		desired_position = 50;
-	}
-*/
-	int now = millis();
-	if (now - last_millis > 1000)
-	{
-		last_millis = now;
-		desired_position = positions[step];
-		step = (step + 1) % num_positions;
-	}
+	if (random(20000) == 0) {
+		int choice = random(4);
+					Serial.print("random what ");
+					Serial.println(choice);
+		switch(choice){
+			case 0: ears_function(); break;
+			case 1: eyes_function(); break;
+			case 2: nose_function(); break;
+			case 3: toes_function(); break;
+			default:
+					break;
+		}
+
+		// go back to home
+		Serial.println("Finding home");
+		const long start_time = millis();
+		motor(+150);
 	
+		while(digitalRead(XCAM_HOME))
+		{
+			if (millis() - start_time > 5000)
+				break;
+		}
 
-	updateMotor();
+		motor(0);
+	
+		position = 0;
+	}
+
 }
 
 void updateMotor()
